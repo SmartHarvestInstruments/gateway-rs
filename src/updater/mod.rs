@@ -85,18 +85,26 @@ impl Updater {
     /// install whereas others may just need a package install and service
     /// restart.
     pub async fn install(&self, download_path: &Path, logger: &Logger) -> Result {
+        info!(logger, "running install_command!");
         match process::Command::new(&self.install_command)
             .arg(download_path)
             .output()
             .await
         {
             Ok(output) => {
+                info!(logger, "install status: {}", output.status);
+                let install_stdout = String::from_utf8(output.stdout).unwrap();
+                info!(logger, "install stdout: {}", install_stdout);
+                let install_stderr = String::from_utf8(output.stderr).unwrap();
+                info!(logger, "install stderr: {}", install_stderr);
                 if output.status.success() {
                     return Ok(());
                 }
-                let output = String::from_utf8(output.stderr).unwrap();
-                error!(logger, "failed to install update {}", output);
-                Err(io::Error::new(io::ErrorKind::Other, output).into())
+                // let output = String::from_utf8(output.stderr).unwrap();
+                // error!(logger, "failed to install update {}", output);
+                // Err(io::Error::new(io::ErrorKind::Other, output).into())
+                error!(logger, "failed to install update {}", install_stderr);
+                Err(io::Error::new(io::ErrorKind::Other, install_stderr).into())
             }
             Err(err) => Err(err.into()),
         }

@@ -1,6 +1,11 @@
 #!/bin/sh -e
 
+touch /tmp/helium_gateway_update
+date >> /tmp/helium_gateway_update
 # install the package. postinst step will (re)start the service
-opkg install "${1}"
+echo "running opkg install" >> /tmp/helium_gateway_update
+opkg install "${1}" >> /tmp/helium_gateway_update
 # remove the package from temp storage
-rm "${1}"
+echo "removing package from tmp" >> /tmp/helium_gateway_update
+rm "${1}" >> /tmp/helium_gateway_update
+echo "done" >> /tmp/helium_gateway_update
